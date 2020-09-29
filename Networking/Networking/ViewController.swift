@@ -17,29 +17,50 @@ class ViewController: UIViewController, UITableViewDataSource {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        guard let url: URL = URL(string: "https://randomuser.me/api/?results=20&inc=name,email,picture") else {return}
+        requestFriends()
         
-        let session: URLSession = URLSession(configuration: .default)
-        let dataTask: URLSessionDataTask = session.dataTask(with: url) { (data: Data?, response: URLResponse?, error: Error?) in // 요청에 대한 서버의 응답이 왔을 때 호출될 클로저 // background에서 수행
-            if let error = error{
-                print(error.localizedDescription)
-                return
-            }
-            guard let data = data else {return}
-            
-            do{
-                let apiResponse: APIResponse = try JSONDecoder().decode(APIResponse.self, from: data)
-                self.friends = apiResponse.results
-                
-                // 메인 쓰레드에서 실행해야할 코드
-                DispatchQueue.main.async{
-                    self.tableView.reloadData()
-                }
-            } catch(let err){
-                print(err.localizedDescription)
-            }
+//        guard let url: URL = URL(string: "https://randomuser.me/api/?results=20&inc=name,email,picture") else {return}
+//
+//        let session: URLSession = URLSession(configuration: .default)
+//        let dataTask: URLSessionDataTask = session.dataTask(with: url) { (data: Data?, response: URLResponse?, error: Error?) in // 요청에 대한 서버의 응답이 왔을 때 호출될 클로저 // background에서 수행
+//            if let error = error{
+//                print(error.localizedDescription)
+//                return
+//            }
+//            guard let data = data else {return}
+//
+//            do{
+//                let apiResponse: APIResponse = try JSONDecoder().decode(APIResponse.self, from: data)
+//                self.friends = apiResponse.results
+//
+//                // 메인 쓰레드에서 실행해야할 코드
+//                DispatchQueue.main.async{
+//                    self.tableView.reloadData()
+//                }
+//            } catch(let err){
+//                print(err.localizedDescription)
+//            }
+//        }
+//        dataTask.resume()
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view.
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.didRecieveFriendsNotification(_:)), name: DidReceiveFriendsNotification, object: nil)
+    }
+    
+    @objc func didRecieveFriendsNotification(_ noti: Notification){
+        
+        guard let friends: [Friend] = noti.userInfo?["friends"] as? [Friend] else {return}
+        
+        self.friends = friends
+        
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
         }
-        dataTask.resume()
+        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -75,11 +96,7 @@ class ViewController: UIViewController, UITableViewDataSource {
         return friends.count
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
-    }
-    
+   
     
 }
 
