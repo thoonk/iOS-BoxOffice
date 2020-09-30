@@ -25,8 +25,12 @@ struct Movie: Codable{
     let id: String
     let title: String
     
-    var secondLabel: String{
+    var tableSecond: String{
         return "평점: \(self.user_rating)" + " 예매순위: \(self.user_rating)" + " 예매율: \(self.reservation_rate)"  
+    }
+    
+    var collectionSecond: String{
+        return "\(reservation_grade)위(\(user_rating)) / \(reservation_rate)%"
     }
     
 }

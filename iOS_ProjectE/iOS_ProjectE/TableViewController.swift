@@ -15,7 +15,7 @@ class TableViewController: UIViewController, UITableViewDataSource {
     
     @IBOutlet weak var tableView: UITableView!
     
-    let cellIdentifier: String = "movieCell"
+    let cellIdentifier: String = "tableCell"
     var movies: [Movie] = []
     
     @IBAction func touchUpSettingButton(_ sender: UIBarButtonItem){
@@ -58,7 +58,7 @@ class TableViewController: UIViewController, UITableViewDataSource {
         
         cell.thumbImageView?.image = nil
         cell.titleLabel?.text = movie.title
-        cell.detailLabel?.text = movie.secondLabel
+        cell.detailLabel?.text = movie.tableSecond
         cell.dateLabel?.text = "개봉일: \(movie.date)"
         
         DispatchQueue.global(qos: .background).async {
