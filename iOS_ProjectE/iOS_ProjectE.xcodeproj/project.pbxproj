@@ -17,6 +17,7 @@
 		08A3FB5D2522F76200251F83 /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A3FB5C2522F76200251F83 /* Movie.swift */; };
 		08A3FB602522F81C00251F83 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A3FB5F2522F81C00251F83 /* Request.swift */; };
 		08A3FB642523061400251F83 /* MovieTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A3FB632523061400251F83 /* MovieTableViewCell.swift */; };
+		08A9D32425247C2C00D4F7A0 /* alertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A9D32325247C2C00D4F7A0 /* alertController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		08A3FB5C2522F76200251F83 /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
 		08A3FB5F2522F81C00251F83 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		08A3FB632523061400251F83 /* MovieTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieTableViewCell.swift; sourceTree = "<group>"; };
+		08A9D32325247C2C00D4F7A0 /* alertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = alertController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,7 @@
 				08A3FB432522ED5C00251F83 /* AppDelegate.swift */,
 				08A3FB452522ED5C00251F83 /* SceneDelegate.swift */,
 				084DC372252310A100CDA7A1 /* TableViewController.swift */,
+				08A9D32325247C2C00D4F7A0 /* alertController.swift */,
 				08A3FB592522F5F700251F83 /* CollectionViewController.swift */,
 				08A3FB492522ED5C00251F83 /* Main.storyboard */,
 				08A3FB5C2522F76200251F83 /* Movie.swift */,
@@ -153,6 +156,7 @@
 				08A3FB602522F81C00251F83 /* Request.swift in Sources */,
 				08A3FB642523061400251F83 /* MovieTableViewCell.swift in Sources */,
 				084DC373252310A100CDA7A1 /* TableViewController.swift in Sources */,
+				08A9D32425247C2C00D4F7A0 /* alertController.swift in Sources */,
 				08A3FB442522ED5C00251F83 /* AppDelegate.swift in Sources */,
 				08A3FB462522ED5C00251F83 /* SceneDelegate.swift in Sources */,
 				08A3FB5D2522F76200251F83 /* Movie.swift in Sources */,

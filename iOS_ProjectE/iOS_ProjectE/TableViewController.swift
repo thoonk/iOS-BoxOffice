@@ -17,6 +17,10 @@ class TableViewController: UIViewController, UITableViewDataSource {
     
     let cellIdentifier: String = "movieCell"
     var movies: [Movie] = []
+    
+    @IBAction func touchUpSettingButton(_ sender: UIBarButtonItem){
+        selectOrder(controller: self)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,7 +45,6 @@ class TableViewController: UIViewController, UITableViewDataSource {
         
         requestMovies(orderType: 0)
     }
-    
     
     //REMARK: - TableView
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

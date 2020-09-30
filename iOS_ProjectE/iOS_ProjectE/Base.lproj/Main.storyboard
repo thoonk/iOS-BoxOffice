@@ -92,7 +92,11 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="AGr-ur-EvW">
-                        <barButtonItem key="rightBarButtonItem" title="Item" image="ic_settings" id="Y8D-8n-PDe"/>
+                        <barButtonItem key="rightBarButtonItem" title="Item" image="ic_settings" id="Y8D-8n-PDe">
+                            <connections>
+                                <action selector="touchUpSettingButton:" destination="BYZ-38-t0r" id="FbO-cE-lNE"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="tableView" destination="NIm-4Z-QlY" id="WhX-0z-dNQ"/>
