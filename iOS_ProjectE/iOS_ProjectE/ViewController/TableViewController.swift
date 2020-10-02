@@ -11,8 +11,6 @@ import UIKit
 
 class TableViewController: UIViewController, UITableViewDataSource {
     
-    
-    
     @IBOutlet weak var tableView: UITableView!
     
     let cellIdentifier: String = "tableCell"
