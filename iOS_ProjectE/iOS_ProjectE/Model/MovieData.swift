@@ -34,7 +34,7 @@ struct Movies: Codable{
     }
     
     var tableSecond: String{
-        return "평점: \(self.userRating)" + " 예매순위: \(self.userRating)" + " 예매율: \(self.reservationRate)"
+        return "평점: \(self.userRating)" + " 예매순위: \(self.reservationGrade)" + " 예매율: \(self.reservationRate)"
     }
     
     var collectionSecond: String{
