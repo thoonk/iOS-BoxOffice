@@ -14,7 +14,11 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
     @IBOutlet weak var collectionView: UICollectionView!
     
     let cellIdentifier: String = "collectionCell"
-    var movies: [Movie] = []
+    var movies: [Movies] = []
+    
+    @IBAction func touchUpSettingButton(_ sender: UIBarButtonItem){
+        selectOrder(controller: self)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,7 +33,7 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
         
         let halfWidth: CGFloat = UIScreen.main.bounds.width / 2.0
         
-        flowLayout.estimatedItemSize = CGSize(width: halfWidth - 37 , height: halfWidth + 33)
+        flowLayout.estimatedItemSize = CGSize(width: halfWidth - 50 , height: halfWidth + 60)
         
         self.collectionView.collectionViewLayout = flowLayout
         
@@ -46,7 +50,7 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
     }
     
     @objc func didReceiveMoviesNotification(_ noti: Notification){
-        guard let movies: [Movie] = noti.userInfo?["movies"] as? [Movie] else {return}
+        guard let movies: [Movies] = noti.userInfo?["movies"] as? [Movies] else {return}
         
         self.movies = movies
         
@@ -55,7 +59,7 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
         }
     }
     
-    //REMARK: - CollectionView
+    // MARK: - CollectionView
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.movies.count
     }
@@ -64,16 +68,16 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
         
         guard let cell: MovieCollectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: self.cellIdentifier, for: indexPath) as? MovieCollectionViewCell else {return UICollectionViewCell()}
         
-        let movie: Movie = self.movies[indexPath.item]
+        let movies: Movies = self.movies[indexPath.item]
         
         cell.thumbImageView?.image = nil
-        cell.titleLabel?.text = movie.title
-        cell.detailLabel?.text = movie.collectionSecond
-        cell.dateLabel?.text = movie.date
+        cell.titleLabel?.text = movies.title
+        cell.detailLabel?.text = movies.collectionSecond
+        cell.dateLabel?.text = movies.date
         
         DispatchQueue.global(qos: .background).async {
             
-            guard let imageURL: URL = URL(string: movie.thumb) else{
+            guard let imageURL: URL = URL(string: movies.thumb) else{
                 print("url error")
                 return
             }
@@ -95,14 +99,25 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
         return cell
     }
     
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toDetailFromCollection" {
+            guard let detailVC: DetailViewController = segue.destination as? DetailViewController else {
+                return
+            }
+            
+            guard let moviesData = sender as? Movies else {
+                return
+            }
+            
+            detailVC.moviesData = moviesData
+        }
         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.
     }
-    */
+    
 
 }
