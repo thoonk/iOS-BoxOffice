@@ -22,7 +22,7 @@ class TableViewController: UIViewController, UITableViewDataSource {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
         self.navigationItem.title = "예매율"
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.didReceiveMoviesNotification(_:)), name: DidRecieveMoviesNotification, object: nil)
@@ -44,6 +44,7 @@ class TableViewController: UIViewController, UITableViewDataSource {
         requestMovies(orderType: 0)
     }
     
+    // MARK: - setGrandImageView
     func setGradeImageView(_ imageView: UIImageView, grade: Int) {
         if grade == 0 {
             imageView.image = UIImage(named: "ic_allages")
@@ -56,7 +57,7 @@ class TableViewController: UIViewController, UITableViewDataSource {
         }
     }
     
-    //REMARK: - TableView
+    // MARK: - TableView
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.movies.count
     }
@@ -64,17 +65,17 @@ class TableViewController: UIViewController, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! MovieTableViewCell
         
-        let movie: Movies = self.movies[indexPath.row]
+        let movies: Movies = self.movies[indexPath.row]
         
         cell.thumbImageView?.image = nil
-        cell.titleLabel?.text = movie.title
-        cell.detailLabel?.text = movie.tableSecond
-        cell.dateLabel?.text = "개봉일: \(movie.date)"
-        setGradeImageView(cell.gradeImageView, grade: movie.grade)
+        cell.titleLabel?.text = movies.title
+        cell.detailLabel?.text = movies.tableSecond
+        cell.dateLabel?.text = "개봉일: \(movies.date)"
+        setGradeImageView(cell.gradeImageView, grade: movies.grade)
         
         DispatchQueue.global(qos: .background).async {
 
-            guard let imageURL: URL = URL(string: movie.thumb) else {
+            guard let imageURL: URL = URL(string: movies.thumb) else {
                 print("url error")
                 return
                 
