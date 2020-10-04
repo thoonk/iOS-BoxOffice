@@ -14,7 +14,7 @@ class TableViewController: UIViewController, UITableViewDataSource {
     @IBOutlet weak var tableView: UITableView!
     
     let cellIdentifier: String = "tableCell"
-    var movies: [Movie] = []
+    var movies: [Movies] = []
     
     @IBAction func touchUpSettingButton(_ sender: UIBarButtonItem){
         selectOrder(controller: self)
@@ -29,7 +29,7 @@ class TableViewController: UIViewController, UITableViewDataSource {
     }
     
     @objc func didReceiveMoviesNotification(_ noti: Notification){
-        guard let movies: [Movie] = noti.userInfo?["movies"] as? [Movie] else {return}
+        guard let movies: [Movies] = noti.userInfo?["movies"] as? [Movies] else {return}
         
         self.movies = movies
         
@@ -44,6 +44,18 @@ class TableViewController: UIViewController, UITableViewDataSource {
         requestMovies(orderType: 0)
     }
     
+    func setGradeImageView(_ imageView: UIImageView, grade: Int) {
+        if grade == 0 {
+            imageView.image = UIImage(named: "ic_allages")
+        } else if grade == 12 {
+            imageView.image = UIImage(named: "ic_12")
+        } else if grade == 15 {
+            imageView.image = UIImage(named: "ic_15")
+        } else {
+            imageView.image = UIImage(named: "ic_19")
+        }
+    }
+    
     //REMARK: - TableView
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.movies.count
@@ -52,12 +64,13 @@ class TableViewController: UIViewController, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! MovieTableViewCell
         
-        let movie: Movie = self.movies[indexPath.row]
+        let movie: Movies = self.movies[indexPath.row]
         
         cell.thumbImageView?.image = nil
         cell.titleLabel?.text = movie.title
         cell.detailLabel?.text = movie.tableSecond
         cell.dateLabel?.text = "개봉일: \(movie.date)"
+        setGradeImageView(cell.gradeImageView, grade: movie.grade)
         
         DispatchQueue.global(qos: .background).async {
 
@@ -84,6 +97,24 @@ class TableViewController: UIViewController, UITableViewDataSource {
         return cell
     }
 
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toDetailFromTable" {
+            guard let detailVC: DetailViewController = segue.destination as? DetailViewController else {
+                return
+            }
+            
+            guard let moviesData = sender as? Movies else {
+                return
+            }
+            
+            detailVC.moviesData = moviesData
+        }
+        // Get the new view controller using segue.destination.
+        // Pass the selected object to the new view controller.
+    }
 }
 
 
