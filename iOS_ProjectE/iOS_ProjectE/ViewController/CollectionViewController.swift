@@ -22,18 +22,14 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
         
         let flowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         
-        //flowLayout.sectionInset = UIEdgeInsets.zero
-        //flowLayout.minimumInteritemSpacing = 10
-        //flowLayout.minimumLineSpacing = 10
+        flowLayout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 0, right: 10)
         
         let halfWidth: CGFloat = UIScreen.main.bounds.width / 2.0
         
-        flowLayout.estimatedItemSize = CGSize(width: halfWidth - 50 , height: halfWidth + 60)
+        flowLayout.itemSize = CGSize(width: halfWidth - 30 , height: halfWidth + 70)
         
         self.collectionView.collectionViewLayout = flowLayout
         
@@ -59,6 +55,19 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
         }
     }
     
+    // MARK: - setGrandImageView
+    func setGradeImageView(_ imageView: UIImageView, grade: Int) {
+        if grade == 0 {
+            imageView.image = UIImage(named: "ic_allages")
+        } else if grade == 12 {
+            imageView.image = UIImage(named: "ic_12")
+        } else if grade == 15 {
+            imageView.image = UIImage(named: "ic_15")
+        } else {
+            imageView.image = UIImage(named: "ic_19")
+        }
+    }
+    
     // MARK: - CollectionView
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.movies.count
@@ -70,13 +79,13 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
         
         let movies: Movies = self.movies[indexPath.item]
         
-        cell.thumbImageView?.image = nil
         cell.titleLabel?.text = movies.title
         cell.detailLabel?.text = movies.collectionSecond
         cell.dateLabel?.text = movies.date
+        setGradeImageView(cell.gradeImageView, grade: movies.grade)
         
         DispatchQueue.global(qos: .background).async {
-            
+        
             guard let imageURL: URL = URL(string: movies.thumb) else{
                 print("url error")
                 return
@@ -95,10 +104,8 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
                 }
             }
         }
-        
         return cell
     }
-    
     
     // MARK: - Navigation
 
@@ -118,6 +125,4 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.
     }
-    
-
 }
