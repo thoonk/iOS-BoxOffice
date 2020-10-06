@@ -9,12 +9,14 @@ import UIKit
 
 import UIKit
 
-class TableViewController: UIViewController, UITableViewDataSource {
+class TableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var tableView: UITableView!
     
     let cellIdentifier: String = "tableCell"
-    var movies: [Movies] = []
+    let segueIdentifier: String = "toDetailFromTable"
+    
+    var movies: [Movies?] = []
     
     @IBAction func touchUpSettingButton(_ sender: UIBarButtonItem){
         selectOrder(controller: self)
@@ -63,10 +65,10 @@ class TableViewController: UIViewController, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: MovieTableViewCell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! MovieTableViewCell
-        
-        let movies: Movies = self.movies[indexPath.row]
-        
+        guard let cell: MovieTableViewCell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as? MovieTableViewCell, let movies: Movies = self.movies[indexPath.row] else{
+            return UITableViewCell()
+        }
+            
         cell.thumbImageView?.image = nil
         cell.titleLabel?.text = movies.title
         cell.detailLabel?.text = movies.tableSecond
@@ -97,21 +99,30 @@ class TableViewController: UIViewController, UITableViewDataSource {
         }
         return cell
     }
-
+    
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        if let moviesData: Movies = movies[indexPath.row] {
+//            print(moviesData.title)
+//            performSegue(withIdentifier: segueIdentifier, sender: moviesData)
+//        }
+//
+//    }
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "toDetailFromTable" {
+        if segue.identifier == segueIdentifier {
+            
+            guard let cell: UITableViewCell = sender as? UITableViewCell else{ return}
+            guard let index: IndexPath = self.tableView.indexPath(for: cell) else {return}
+            
             guard let detailVC: DetailViewController = segue.destination as? DetailViewController else {
+                print("no movie in tableview")
                 return
             }
             
-            guard let moviesData = sender as? Movies else {
-                return
-            }
-            
-            detailVC.moviesData = moviesData
+            detailVC.movies = movies[index.row]
         }
         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.

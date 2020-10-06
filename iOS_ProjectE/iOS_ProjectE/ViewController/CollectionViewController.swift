@@ -9,11 +9,10 @@ import UIKit
 
 class CollectionViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
     
-    
-    
     @IBOutlet weak var collectionView: UICollectionView!
     
     let cellIdentifier: String = "collectionCell"
+    let segueIdentifier: String = "toDetailFromCollection"
     var movies: [Movies] = []
     
     @IBAction func touchUpSettingButton(_ sender: UIBarButtonItem){
@@ -111,18 +110,19 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "toDetailFromCollection" {
+        if segue.identifier == segueIdentifier {
+            
+            guard let cell: UICollectionViewCell = sender as? UICollectionViewCell else{ return}
+            guard let index: IndexPath = self.collectionView.indexPath(for: cell) else {return}
+            
             guard let detailVC: DetailViewController = segue.destination as? DetailViewController else {
+                print("no movie in tableview")
                 return
             }
             
-            guard let moviesData = sender as? Movies else {
-                return
-            }
-            
-            detailVC.moviesData = moviesData
+            detailVC.movies = movies[index.row]
         }
-        // Get the new view controller using segue.destination.
+        //         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.
     }
 }
