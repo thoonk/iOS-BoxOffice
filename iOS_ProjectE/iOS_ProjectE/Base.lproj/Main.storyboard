@@ -418,6 +418,7 @@
                                             <outlet property="audienceLabel" destination="ce1-2g-BbH" id="qJT-PF-pR2"/>
                                             <outlet property="dateLabel" destination="XlW-am-QdX" id="8Hk-NI-XQW"/>
                                             <outlet property="genreDurationLabel" destination="ed4-Fo-8Bj" id="9Sj-np-OFG"/>
+                                            <outlet property="gradeImageView" destination="2d6-ey-Qic" id="RJY-MQ-sb0"/>
                                             <outlet property="reservationLabel" destination="lJX-xW-Tfb" id="T7y-7A-m8Z"/>
                                             <outlet property="thumbImageView" destination="DKx-Sa-a5m" id="j6K-4H-irg"/>
                                             <outlet property="titleLabel" destination="hDU-wi-x69" id="vkx-Xs-tH3"/>
