@@ -100,13 +100,6 @@ class TableViewController: UIViewController, UITableViewDataSource, UITableViewD
         return cell
     }
     
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        if let moviesData: Movies = movies[indexPath.row] {
-//            print(moviesData.title)
-//            performSegue(withIdentifier: segueIdentifier, sender: moviesData)
-//        }
-//
-//    }
     
     // MARK: - Navigation
 
