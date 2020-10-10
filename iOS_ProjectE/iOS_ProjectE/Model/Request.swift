@@ -64,7 +64,7 @@ func requestMovieDetail(_ id: String){
 }
 
 func requestMovieComments(_ id: String){
-    guard let url: URL = URL(string: "http://connect-boxoffice.run.goorm.io/comments/movie_id=\(id)") else{
+    guard let url: URL = URL(string: "http://connect-boxoffice.run.goorm.io/comments?movie_id=\(id)") else{
         print("url error")
         return
     }
