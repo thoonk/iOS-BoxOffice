@@ -28,6 +28,9 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
         static let commentCell = "commentCell"
         static let headerCell = "headerCell"
     }
+    struct SegueIdentifier {
+        static let toWriteFromDetail = "toWriteFromDetail"
+    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -69,6 +72,13 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
         }
     }
     
+    @objc func composeButtonAction(){
+        guard let movieData: Movie = self.movie else{
+            return
+        }
+        performSegue(withIdentifier: SegueIdentifier.toWriteFromDetail, sender: movieData)
+    }
+    // 영화 데이터 요청
     private func request(){
         guard let movies = movies else{
             return
@@ -106,7 +116,15 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
         return section == TableViewSection.comment ? comments.count : 1
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return indexPath.section == TableViewSection.info ? 280 : UITableView.automaticDimension
+        
+        if indexPath.section == TableViewSection.info {
+            return 280
+        } else if indexPath.section == TableViewSection.comment {
+            return 100
+        } else{
+            return UITableView.automaticDimension
+        }
+//        return indexPath.section == TableViewSection.info ? 280 : UITableView.automaticDimension
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return section == TableViewSection.info ? CGFloat.leastNormalMagnitude : 50
@@ -119,7 +137,7 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
             return UITableViewCell()
         }
         switch indexPath.section{
-        // 정보
+        // 영화 정보
         case TableViewSection.info:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifier.infoCell, for: indexPath) as? InfoTableViewCell else {
                 return UITableViewCell()
@@ -186,6 +204,7 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
             return UITableViewCell()
         }
     }
+    // 각 cell의 헤더 설정
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         
         let view = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 50))
@@ -203,6 +222,7 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
             label.text = "한줄평"
             button.setImage(UIImage(named: "btn_compose"), for: .normal)
             button.isHidden = false
+            button.addTarget(self, action: #selector(composeButtonAction), for: .touchUpInside)
         
         default:
             return nil

@@ -601,22 +601,24 @@
                     <navigationItem key="navigationItem" id="FFe-Df-Z3N"/>
                     <connections>
                         <outlet property="tableView" destination="YYi-B4-Uj2" id="KDm-5w-YyL"/>
+                        <segue destination="qEJ-M7-iNh" kind="show" identifier="toWriteFromDetail" id="mr3-WI-TxO"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cP6-B7-Ma8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="3105.7971014492755" y="57.589285714285708"/>
         </scene>
-        <!--View Controller-->
+        <!--Write Comment View Controller-->
         <scene sceneID="bVX-XE-0ha">
             <objects>
-                <viewController id="qEJ-M7-iNh" sceneMemberID="viewController">
+                <viewController id="qEJ-M7-iNh" customClass="WriteCommentViewController" customModule="iOS_ProjectE" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="wuX-AH-cO3">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="ygr-4c-r0b"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
+                    <navigationItem key="navigationItem" id="YTM-0p-Yey"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OV9-UO-MZ9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
