@@ -14,4 +14,10 @@ class MovieCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var detailLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
+    
+    func mappingData(_ data: Movies){
+        titleLabel?.text = data.title
+        detailLabel?.text = data.collectionSecond
+        dateLabel?.text = data.date
+    }
 }

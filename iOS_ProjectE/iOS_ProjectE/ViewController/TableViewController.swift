@@ -69,10 +69,7 @@ class TableViewController: UIViewController, UITableViewDataSource, UITableViewD
             return UITableViewCell()
         }
             
-        cell.thumbImageView?.image = nil
-        cell.titleLabel?.text = movies.title
-        cell.detailLabel?.text = movies.tableSecond
-        cell.dateLabel?.text = "개봉일: \(movies.date)"
+        cell.mappingData(movies)
         setGradeImageView(cell.gradeImageView, grade: movies.grade)
         
         DispatchQueue.global(qos: .background).async {

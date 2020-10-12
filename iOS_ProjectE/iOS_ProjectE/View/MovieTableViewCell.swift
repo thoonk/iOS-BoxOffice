@@ -14,5 +14,11 @@ class MovieTableViewCell: UITableViewCell {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var detailLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
-        
+    
+    func mappingData(_ data: Movies){
+        thumbImageView.image = nil
+        titleLabel.text = data.title
+        detailLabel.text = data.tableSecond
+        dateLabel.text = "개봉일: \(data.date)"
+    }
 }

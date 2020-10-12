@@ -78,9 +78,7 @@ class CollectionViewController: UIViewController, UICollectionViewDataSource, UI
         
         let movies: Movies = self.movies[indexPath.item]
         
-        cell.titleLabel?.text = movies.title
-        cell.detailLabel?.text = movies.collectionSecond
-        cell.dateLabel?.text = movies.date
+        cell.mappingData(movies)
         setGradeImageView(cell.gradeImageView, grade: movies.grade)
         
         DispatchQueue.global(qos: .background).async {
