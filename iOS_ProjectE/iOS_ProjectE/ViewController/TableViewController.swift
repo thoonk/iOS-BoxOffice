@@ -9,54 +9,92 @@ import UIKit
 
 import UIKit
 
-class TableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class TableViewController: MovieViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var tableView: UITableView!
+    
+    @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView! {
+        didSet{
+            indicatorViewAnimating(activityIndicatorView, refresher: refresher, isStart: false)
+        }
+    }
     
     let cellIdentifier: String = "tableCell"
     let segueIdentifier: String = "toDetailFromTable"
     
+    var refresher = UIRefreshControl()
     var movies: [Movies?] = []
     
     @IBAction func touchUpSettingButton(_ sender: UIBarButtonItem){
-        selectOrder(controller: self)
+        setOrderType()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.navigationItem.title = "예매율"
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(self.didReceiveMoviesNotification(_:)), name: DidRecieveMoviesNotification, object: nil)
+        refresher.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        tableView.addSubview(refresher)
+        registerOrderTypeNotification()
+        requestMovies()
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        changeNavigationTitle()
     }
     
-    @objc func didReceiveMoviesNotification(_ noti: Notification){
-        guard let movies: [Movies] = noti.userInfo?["movies"] as? [Movies] else {return}
-        
-        self.movies = movies
-        
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
+    override func didReceiveNotification(_ notification: Notification) {
+        super.didReceiveNotification(notification)
+        changeNavigationTitle()
+        requestMovies()
+    }
+    
+    @objc private func refresh() {
+        requestMovies()
+    }
+    
+    // 네비게이션 타이틀 변경
+    private func changeNavigationTitle() {
+        switch Request.orderType {
+        case .reservationRate:
+            navigationItem.title = "예매율"
+        case .curation:
+            navigationItem.title = "큐레이션"
+        case .date:
+            navigationItem.title = "개봉일"
         }
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        requestMovies(orderType: 0)
-    }
-    
-    // MARK: - setGrandImageView
-    func setGradeImageView(_ imageView: UIImageView, grade: Int) {
-        if grade == 0 {
-            imageView.image = UIImage(named: "ic_allages")
-        } else if grade == 12 {
-            imageView.image = UIImage(named: "ic_12")
-        } else if grade == 15 {
-            imageView.image = UIImage(named: "ic_15")
-        } else {
-            imageView.image = UIImage(named: "ic_19")
+    // 영화 목록 요청
+    private func requestMovies(){
+        if !refresher.isRefreshing {
+            indicatorViewAnimating(activityIndicatorView, refresher: refresher, isStart: true)
         }
+        request.requestMovies(Request.orderType) { [weak self ] (isSuccess, data, error) in
+            guard let self = self else { return }
+            if let error = error {
+                self.errorHandler(error) {
+                    self.indicatorViewAnimating(self.activityIndicatorView, refresher: self.refresher, isStart: false)
+                    self.tableView.isHidden = true
+                }
+            }
+            if isSuccess {
+                guard let movieList = data as? [Movies] else {
+                    return
+                }
+                
+                self.movies = movieList
+                
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            } else {
+                self.errorHandler() {
+                    self.indicatorViewAnimating(self.activityIndicatorView, refresher: self.refresher, isStart: false)
+                    self.tableView.isHidden = true
+                }
+            }
+        }
+        indicatorViewAnimating(activityIndicatorView, refresher: refresher, isStart: false)
     }
     
     // MARK: - TableView

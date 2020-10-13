@@ -5,88 +5,125 @@
 //  Created by 김태훈 on 2020/09/29.
 //
 
-import Foundation
+import UIKit
 
-let DidRecieveMoviesNotification: Notification.Name = Notification.Name("DidRecieveMovies")
-let DidRecieveMovieNotification: Notification.Name = Notification.Name("DidRecieveMovie")
-let DidRecieveCommentsNotification: Notification.Name = Notification.Name("DidRecieveComments")
-
-// MARK: - 영화 목록 요청
-func requestMovies(orderType: Int){
-    guard let url: URL = URL(string: "http://connect-boxoffice.run.goorm.io/movies?order_type=\(orderType)") else {
-        return
-    }
-    
-    let session: URLSession = URLSession(configuration: .default)
-    let dataTask: URLSessionDataTask = session.dataTask(with: url) { (data: Data?, response: URLResponse?, error: Error?) in
-        if let error = error{
-            print(error.localizedDescription)
-            return
-        }
-
-        guard let data = data else {return}
-
-        do{
-            let apiResponse: APIResponseForMovies = try JSONDecoder().decode(APIResponseForMovies.self, from: data)
-
-            NotificationCenter.default.post(name: DidRecieveMoviesNotification, object: nil, userInfo: ["movies": apiResponse.movies])
-
-        }catch(let err){
-            print(err.localizedDescription)
-        }
-    }
-    dataTask.resume()
+// 정렬 타입
+enum OrderType: Int {
+    case reservationRate = 0    // 예매순
+    case curation = 1           // 큐레이터
+    case date = 2               // 개봉순
 }
 
-func requestMovieDetail(_ id: String){
-    guard let url: URL = URL(string: "http://connect-boxoffice.run.goorm.io/movie?id=\(id)") else{
-        print("url error")
-        return
-    }
+typealias completionHandler = (Bool, AnyObject?, Error?) -> Void
+
+class Request{
     
-    let session: URLSession = URLSession(configuration: .default)
-    let dataTask: URLSessionDataTask = session.dataTask(with: url) {(data: Data?, response: URLResponse?, error: Error?) in
-        if let error = error{
-            print(error.localizedDescription)
+    private enum URLType {
+        case movies
+        case movie
+        case comments
+        case post
+    }
+
+    //MARK: - Singletone
+    static let shared = Request()
+    private init() {}
+    
+    static var orderType: OrderType = .reservationRate
+    private lazy var urlSession = URLSession.shared
+    private var tasks = [URLSessionTask]()
+    private let baseURL = "http://connect-boxoffice.run.goorm.io"
+    
+    // MARK: - 영화 목록 요청
+    func requestMovies(_ type: OrderType, completionHandler: @escaping completionHandler){
+        
+        let parameter = ["order_type": "\(type.rawValue)"]
+        guard let url = createURL(.movies, parameters: parameter) else {
+            completionHandler(false, nil, nil)
             return
         }
-        
-        guard let data = data else {return}
-        
-        do {
-            let apiResponse = try JSONDecoder().decode(Movie.self, from: data)
-            NotificationCenter.default.post(name: DidRecieveMovieNotification, object: nil, userInfo: ["movie": apiResponse])
-        } catch(let err){
-            print(err.localizedDescription)
-        }
-    }
-    dataTask.resume()
-}
-
-func requestMovieComments(_ id: String){
-    guard let url: URL = URL(string: "http://connect-boxoffice.run.goorm.io/comments?movie_id=\(id)") else{
-        print("url error")
-        return
+        request(url, type: .movies, completionHandler: completionHandler)
     }
     
-    let session: URLSession = URLSession(configuration: .default)
-    let dataTask: URLSessionDataTask = session.dataTask(with: url) { (data: Data?, response: URLResponse?, error: Error?) in
-        if let error = error{
-            print("request Error")
-            print(error.localizedDescription)
+    //MARK: - 영화 상세정보 요청
+    func requestMovieDetail(_ id: String, completionHandler: @escaping completionHandler){
+        let parameter = ["id": "\(id)"]
+        guard let url = createURL(.movie, parameters: parameter) else {
+            completionHandler(false, nil, nil)
             return
         }
+        request(url, type: .movie, completionHandler: completionHandler)
+    }
+    
+    //MARK: - 영화 한줄평 목록 요청
+    func requestMovieComments(_ id: String, completionHandler: @escaping completionHandler){
+        let parameter = ["movie_id": "\(id)"]
+        guard let url = createURL(.comments, parameters: parameter) else {
+            completionHandler(false, nil, nil)
+            return
+        }
+        request(url, type: .comments, completionHandler: completionHandler)
+    }
+    
+    //MARK: - 요청 처리
+    private func request(_ url: URL, type: URLType, completionHandler: @escaping completionHandler) {
+        indicatorInMainQueue(visible: true)
+        urlSession.dataTask(with: url) { [weak self] (data, response, error) in
+            guard let self = self else { return }
+            self.indicatorInMainQueue(visible: false)
+            if let error = error {
+                completionHandler(false, nil, error)
+                return
+            }
+            guard let data = data else {
+                completionHandler(false, nil, nil)
+                return
+            }
+            do {
+                switch type {
+                case .movies:
+                    let apiResponse = try JSONDecoder().decode(APIResponseForMovies.self, from: data)
+                    completionHandler(true, apiResponse.movies as AnyObject, nil)
+                case .movie:
+                    let apiResponse = try JSONDecoder().decode(Movie.self, from: data)
+                    completionHandler(true, apiResponse as AnyObject, nil)
+                case .comments:
+                    let apiResponse = try JSONDecoder().decode(APIResponseForComments.self, from: data)
+                    completionHandler(true, apiResponse.comments as AnyObject, nil)
+                default:
+                    ()
+                }
+            } catch let error {
+                completionHandler(false, nil, error)
+            }
+        }.resume()
+    }
+    
+    //MARK: - URL 생성
+    private func createURL(_ type: URLType, parameters: [String: String]) -> URL? {
+        var urlString = baseURL
+        switch type {
+        case .movies:
+            urlString += "/movies?"
+        case .movie:
+            urlString += "/movie?"
+        case .comments:
+            urlString += "/comments?"
+        case .post:
+            urlString += "/comment"
+            return URL(string: urlString)
+        }
+        let zippedParameters = zip(parameters.keys, parameters.keys.map { parameters[$0] })
+        let parametersString = zippedParameters.map { "\($0)=\($1 ?? "")"}.joined(separator: "&")
+        urlString += parametersString
+        return URL(string: urlString)
+    }
 
-        guard let data = data else {return}
-
-        do{
-            let apiResponse: APIResponseForComments = try JSONDecoder().decode(APIResponseForComments.self, from: data)
-
-            NotificationCenter.default.post(name: DidRecieveCommentsNotification, object: nil, userInfo: ["comments": apiResponse.comments])
-
-        }catch(let err){
-            print(err.localizedDescription)
+    //MARK: - IndicatorView
+    private func indicatorInMainQueue(visible: Bool) {
+        DispatchQueue.main.async {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = visible
         }
     }
-    dataTask.resume()
+    
 }

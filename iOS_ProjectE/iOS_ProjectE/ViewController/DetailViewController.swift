@@ -7,13 +7,21 @@
 
 import UIKit
 
-class DetailViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class DetailViewController: MovieViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var tableView: UITableView!
     
+    @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView! {
+        didSet{
+            indicatorViewAnimating(activityIndicatorView, refresher: refresher , isStart: false)
+        }
+    }
+    
     var movie: Movie?
     var movies: Movies?
+    var movieImage: UIImage?
     var comments: [Comment?] = []
+    var refresher = UIRefreshControl()
 
     struct TableViewSection{
         static let info = 0
@@ -35,17 +43,13 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        request()
+        requestMovie()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.navigationItem.title = self.movies?.title
-        
-        // Do any additional setup after loading the view.
-        NotificationCenter.default.addObserver(self, selector: #selector(self.didRecieveMovieNotification(_:)), name: DidRecieveMovieNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.didRecieveCommentsNotification(_:)), name: DidRecieveCommentsNotification, object: nil)
     }
     
     @objc func didRecieveMovieNotification(_ noti: Notification){
@@ -78,33 +82,98 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
         }
         performSegue(withIdentifier: SegueIdentifier.toWriteFromDetail, sender: movieData)
     }
+    
     // 영화 데이터 요청
-    private func request(){
-        guard let movies = movies else{
+    private func requestMovie(){
+        guard let movies: Movies = self.movies else{
+            return
+        }
+        indicatorViewAnimating(self.activityIndicatorView, isStart: true)
+        
+        let dispatchGroup = DispatchGroup()
+        var errorOccurred = false
+        
+        dispatchGroup.enter()
+        request.requestMovieDetail(movies.id){ [weak self] (isSuccess, data, error) in
+            guard let self = self else {return}
+            if let error = error{
+                self.errorHandler(error){
+                    self.indicatorViewAnimating(self.activityIndicatorView, refresher: self.refresher, isStart: false)
+                }
+            }
+            if isSuccess {
+                guard let movie = data as? Movie else{
+                    return
+                }
+                
+                self.movie = movie
+  
+            }else {
+                errorOccurred = true
+            }
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.enter()
+        request.requestMovieComments(movies.id){ [weak self] (isSuccess, data, error) in
+            guard let self = self  else {return}
+            if let error = error{
+                self.errorHandler(error){
+                    self.indicatorViewAnimating(self.activityIndicatorView, refresher: self.refresher, isStart: false)
+                }
+            }
+            if isSuccess{
+                guard let comments = data as? [Comment] else {
+                    return
+                }
+                
+                self.comments = comments
+
+            }else {
+                errorOccurred = true
+            }
+            dispatchGroup.leave()
+        }
+        dispatchGroup.notify(queue: .global()){
+            if errorOccurred {
+                self.errorHandler(){
+                    self.indicatorViewAnimating(self.activityIndicatorView, isStart: false)
+                }
+            } else {
+                self.downloadImage()
+            }
+        }
+    }
+    
+    private func downloadImage(){
+        guard let movie: Movie = self.movie else{
             return
         }
         
-        let dispatchGroup = DispatchGroup()
+        guard let imageURL: URL = URL(string: movie.image) else {
+            print("url error")
+            return
+            
+        }
+        // ATS로 인하여 http인 경우 Info.plist에서 ATS비활성화해야 함
+        guard let imageData: Data = try? Data(contentsOf: imageURL) else {
+            print("data error")
+            return
+        }
         
-        dispatchGroup.enter()
-        requestMovieDetail(movies.id)
-        dispatchGroup.leave()
-        
-        dispatchGroup.enter()
-        requestMovieComments(movies.id)
-        dispatchGroup.leave()
-    }
-    
-    // MARK: - setGrandImageView
-    func setGradeImageView(_ imageView: UIImageView, grade: Int) {
-        if grade == 0 {
-            imageView.image = UIImage(named: "ic_allages")
-        } else if grade == 12 {
-            imageView.image = UIImage(named: "ic_12")
-        } else if grade == 15 {
-            imageView.image = UIImage(named: "ic_15")
-        } else {
-            imageView.image = UIImage(named: "ic_19")
+        guard let image: UIImage = UIImage(data: imageData) else{
+            self.errorHandler(){
+                self.tableView.isHidden = false
+                self.tableView.reloadData()
+            }
+            return
+        }
+        movieImage = image
+        self.indicatorViewAnimating(self.activityIndicatorView, isStart: false)
+
+        DispatchQueue.main.async {
+            self.tableView.isHidden = false
+            self.tableView.reloadData()
         }
     }
     
@@ -124,7 +193,6 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
         } else{
             return UITableView.automaticDimension
         }
-//        return indexPath.section == TableViewSection.info ? 280 : UITableView.automaticDimension
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return section == TableViewSection.info ? CGFloat.leastNormalMagnitude : 50
@@ -147,29 +215,12 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
             setGradeImageView(cell.gradeImageView, grade: movie.grade)
             
             
-            DispatchQueue.global(qos: .background).async {
 
-                guard let imageURL: URL = URL(string: movie.image) else {
-                    print("url error")
-                    return
-                    
-                }
-                // ATS로 인하여 http인 경우 Info.plist에서 ATS비활성화해야 함
-                guard let imageData: Data = try? Data(contentsOf: imageURL) else {
-                    print("data error")
-                    return
-                    
-                }
-                
+            if let image = movieImage {
                 DispatchQueue.main.async {
-                    if let index: IndexPath = tableView.indexPath(for: cell){
-                        if index.row == indexPath.row{
-                            cell.thumbImageView?.image = UIImage(data: imageData)
-                        }
-                    }
+                    cell.thumbImageView.image = image
                 }
             }
-            
             return cell
         // 줄거리
         case TableViewSection.synopsis:
