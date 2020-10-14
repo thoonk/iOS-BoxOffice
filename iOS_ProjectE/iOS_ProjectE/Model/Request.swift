@@ -65,6 +65,40 @@ class Request{
         request(url, type: .comments, completionHandler: completionHandler)
     }
     
+    func postMovieComment(_ movieId: String, writer: String, contents: String, rating: Double, completionHandler: @escaping completionHandler){
+        indicatorInMainQueue(visible: true)
+        
+        // 데이터 인코딩 과정
+        let time = Date().timeIntervalSince1970
+        let comment = WriteComment(rating: rating, writer: writer, movieId: movieId, contents: contents, timestamp: time)
+        guard let uploadData = try? JSONEncoder().encode(comment), let url = createURL(.post, parameters: [:]) else{
+            completionHandler(false, nil, nil)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        urlSession.uploadTask(with: request, from: uploadData) { [weak self] (data, response, error) in
+            guard let self = self else{return}
+            self.indicatorInMainQueue(visible: false)
+            
+            if let error = error {
+                completionHandler(false, nil, error)
+                return
+            }
+            if let  response = response as? HTTPURLResponse {
+                if (200 ... 299).contains(response.statusCode) {
+                    completionHandler(true, nil, nil)
+                } else {
+                    let error = NSError(domain: "", code: response.statusCode, userInfo: [NSLocalizedDescriptionKey : "Server error"])
+                    completionHandler(false, nil, error)
+                }
+            }
+        }.resume()
+    }
+    
     //MARK: - 요청 처리
     private func request(_ url: URL, type: URLType, completionHandler: @escaping completionHandler) {
         indicatorInMainQueue(visible: true)
