@@ -52,6 +52,16 @@ class DetailViewController: MovieViewController, UITableViewDataSource, UITableV
         self.navigationItem.title = self.movies?.title
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == SegueIdentifier.toWriteFromDetail{
+            guard let writeCommentVC = segue.destination as? WriteCommentViewController,
+                  let movie = sender as? Movie else {
+                return
+            }
+            writeCommentVC.movie = movie
+        }
+    }
+    
     @objc func didRecieveMovieNotification(_ noti: Notification){
         guard let movie: Movie = noti.userInfo?["movie"] as? Movie else {
             print("noti error")
@@ -77,10 +87,10 @@ class DetailViewController: MovieViewController, UITableViewDataSource, UITableV
     }
     
     @objc func composeButtonAction(){
-        guard let movieData: Movie = self.movie else{
+        guard let movie: Movie = self.movie else{
             return
         }
-        performSegue(withIdentifier: SegueIdentifier.toWriteFromDetail, sender: movieData)
+        performSegue(withIdentifier: SegueIdentifier.toWriteFromDetail, sender: movie)
     }
     
     // 영화 데이터 요청
