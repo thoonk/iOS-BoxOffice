@@ -22,6 +22,18 @@ class DetailViewController: MovieViewController, UITableViewDataSource, UITableV
     var movieImage: UIImage?
     var comments: [Comment?] = []
     var refresher = UIRefreshControl()
+    private lazy var cellImageViewTapGesture: UITapGestureRecognizer = {
+        return UITapGestureRecognizer(target: self, action: #selector(cellImageViewTapped))
+    }()
+    private lazy var wholeSizeImageView: UIImageView = {
+        let frame = CGRect(x: 0, y: 44, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - 88)
+        let imageView = UIImageView(frame: frame)
+        imageView.contentMode = .scaleToFill
+        imageView.isUserInteractionEnabled = true
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(wholeSizeImageViewTapped))
+        imageView.addGestureRecognizer(tapGestureRecognizer)
+        return imageView
+    }()
 
     struct TableViewSection{
         static let info = 0
@@ -62,35 +74,32 @@ class DetailViewController: MovieViewController, UITableViewDataSource, UITableV
         }
     }
     
-    @objc func didRecieveMovieNotification(_ noti: Notification){
-        guard let movie: Movie = noti.userInfo?["movie"] as? Movie else {
-            print("noti error")
-            return}
-        
-        self.movie = movie
-        
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
-    }
-    
-    @objc func didRecieveCommentsNotification(_ noti: Notification){
-        guard let comments: [Comment] = noti.userInfo?["comments"] as? [Comment] else{
-            print("comment error")
-            return
-        }
-        self.comments = comments
-        
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
-    }
-    
-    @objc func composeButtonAction(){
+    // 한줄평 작성 이미지 누를 경우
+    @objc private func composeButtonAction(){
         guard let movie: Movie = self.movie else{
             return
         }
         performSegue(withIdentifier: SegueIdentifier.toWriteFromDetail, sender: movie)
+    }
+    
+    // cell의 ImageView 탭할 경우
+    @objc private func cellImageViewTapped(){
+        for subView in view.subviews{
+            subView.isHidden = true
+        }
+        view.addSubview(wholeSizeImageView)
+    }
+    
+    // 전체 사이즈의 이미지 탭할 경우
+    @objc private func wholeSizeImageViewTapped(){
+        wholeSizeImageView.removeFromSuperview()
+        for subView in view.subviews{
+            if subView === activityIndicatorView{
+                continue
+            }
+            subView.isHidden = false
+        }
+
     }
     
     // 영화 데이터 요청
@@ -223,13 +232,13 @@ class DetailViewController: MovieViewController, UITableViewDataSource, UITableV
             }
             cell.mappingData(movie)
             setGradeImageView(cell.gradeImageView, grade: movie.grade)
-            
-            
 
             if let image = movieImage {
                 DispatchQueue.main.async {
                     cell.thumbImageView.image = image
                 }
+                cell.thumbImageView.addGestureRecognizer(cellImageViewTapGesture)
+                wholeSizeImageView.image = image
             }
             return cell
         // 줄거리
