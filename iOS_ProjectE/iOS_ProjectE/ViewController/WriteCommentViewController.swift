@@ -24,6 +24,22 @@ class WriteCommentViewController: MovieViewController {
             contentsTextView.layer.cornerRadius = 8
         }
     }
+    @IBOutlet weak var starRatingView: StarRatingView!{
+        didSet{
+            starRatingView.isEditable = true
+            starRatingView.maxRating = 10
+            starRatingView.emptyImage = UIImage(named: "ic_star_large")
+            starRatingView.halfImage = UIImage(named: "ic_star_large_half")
+            starRatingView.fullImage = UIImage(named: "ic_star_large_full")
+            starRatingView.delegate = self
+        }
+    }
+    @IBOutlet weak var ratingLabel: UILabel!{
+        didSet{
+            ratingLabel.text = "0"
+        }
+    }
+
     
     @IBOutlet private var activityIndicatorView: UIActivityIndicatorView! {
         didSet {
@@ -44,11 +60,17 @@ class WriteCommentViewController: MovieViewController {
         }
     }
     
+    @objc private func viewTapped(){
+        view.endEditing(true)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.navigationItem.title = "한줄평 작성"
+        
+        let viewTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
+        view.addGestureRecognizer(viewTapGestureRecognizer)
         
         self.contentsTextView.delegate = self
         writerTextField.text = getWriter()
@@ -73,6 +95,7 @@ class WriteCommentViewController: MovieViewController {
         return nil
     }
     
+
     private func postMovieComment(){
         guard let id = movie?.id,
               let writer = writerTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -100,6 +123,13 @@ class WriteCommentViewController: MovieViewController {
         }
     }
     
+}
+
+extension WriteCommentViewController: StarRatingViewDelegate {
+    /// starRatingView의 currentRating 값에 따라 라벨에 표시될 값 설정
+    func starRatingView(_ ratingView: StarRatingView, isUpdating rating: Double) {
+        ratingLabel.text = String(format: "%.f", rating)
+    }
 }
 
 extension WriteCommentViewController: UITextViewDelegate{

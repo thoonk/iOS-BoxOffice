@@ -13,6 +13,15 @@ class CommentTableViewCell: UITableViewCell {
     @IBOutlet weak var writerLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var reviewLabel: UILabel!
+    @IBOutlet weak var starRatingView: StarRatingView!{
+        didSet{
+            starRatingView.isEditable = false
+            starRatingView.maxRating = 10
+            starRatingView.emptyImage = UIImage(named: "ic_star_large")
+            starRatingView.halfImage = UIImage(named: "ic_star_large_half")
+            starRatingView.fullImage = UIImage(named: "ic_star_large_full")
+        }
+    }
     
     private lazy var dateFormmater: DateFormatter = {
         let formatter = DateFormatter()
@@ -28,5 +37,6 @@ class CommentTableViewCell: UITableViewCell {
             let date = Date(timeIntervalSince1970: time)
             timeLabel.text = dateFormmater.string(from: date)
         }
+        starRatingView.currentRating = data.rating
     }
 }

@@ -16,7 +16,15 @@ class InfoTableViewCell: UITableViewCell {
     @IBOutlet weak var genreDurationLabel: UILabel!
     @IBOutlet weak var reservationLabel: UILabel!
     @IBOutlet weak var userRatingLabel: UILabel!
-//    @IBOutlet weak var starRatingView:
+    @IBOutlet weak var starRatingView: StarRatingView!{
+        didSet{
+            starRatingView.isEditable = false
+            starRatingView.maxRating = 10
+            starRatingView.emptyImage = UIImage(named: "ic_star_large")
+            starRatingView.halfImage = UIImage(named: "ic_star_large_half")
+            starRatingView.fullImage = UIImage(named: "ic_star_large_full")
+        }
+    }
     @IBOutlet weak var audienceLabel: UILabel!
     
     func mappingData(_ data: Movie){
@@ -26,5 +34,6 @@ class InfoTableViewCell: UITableViewCell {
         reservationLabel.text = "\(data.reservationGrade)위 \(data.reservationRate)%"
         userRatingLabel.text = "\(data.userRating)"
         audienceLabel.text = data.audience.toStringWithComma() ?? "\(data.audience)"
+        starRatingView.currentRating = data.userRating
     }
 }
