@@ -21,7 +21,7 @@ class StarRatingView: UIView {
     private var starCount: Int = 5
     private var ratio: Double{
         get {
-            return maxRating / Double(starCount)
+            return Double(maxRating / starCount)
         }
     }
     private var conversedValue: Double {
@@ -62,7 +62,7 @@ class StarRatingView: UIView {
             updateImageViews()
         }
     }
-    @IBInspectable var minRating: Double = 0{
+    @IBInspectable var minRating: Int = 0{
         willSet{
             removeImageViews()
         }
@@ -73,13 +73,13 @@ class StarRatingView: UIView {
             updateImageViews()
         }
     }
-    @IBInspectable var maxRating: Double = 5{
+    @IBInspectable var maxRating: Int = 5{
         willSet{
             removeImageViews()
         }
         didSet{
-            if maxRating < Double(starCount){
-                maxRating = Double(starCount)
+            if maxRating < starCount{
+                maxRating = starCount
             }
             updateImageViews()
         }
@@ -89,10 +89,10 @@ class StarRatingView: UIView {
             removeImageViews()
         }
         didSet{
-            if currentRating < minRating{
-                currentRating = minRating
-            }else if currentRating > maxRating{
-                currentRating = maxRating
+            if currentRating < Double(minRating){
+                currentRating = Double(minRating)
+            }else if currentRating > Double(maxRating){
+                currentRating = Double(maxRating)
             }
             updateImageViews()
         }
@@ -114,7 +114,7 @@ class StarRatingView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
-    convenience init(frame: CGRect, type: RatingType, isEditable: Bool, minRating: Double, maxRating: Double, currentRating: Double) {
+    convenience init(frame: CGRect, type: RatingType, isEditable: Bool, minRating: Int, maxRating: Int, currentRating: Double) {
         self.init(frame: frame, type: type, isEditable: isEditable)
         self.minRating = minRating
         self.maxRating = maxRating

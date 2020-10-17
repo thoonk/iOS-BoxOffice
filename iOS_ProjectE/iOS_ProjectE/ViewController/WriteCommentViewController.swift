@@ -103,7 +103,7 @@ class WriteCommentViewController: MovieViewController {
             return
         }
         
-        let rating = 10.0
+        let rating = starRatingView.currentRating
         setWriter(writer)
         indicatorViewAnimating(activityIndicatorView, isStart: false)
         
@@ -122,7 +122,6 @@ class WriteCommentViewController: MovieViewController {
             }
         }
     }
-    
 }
 
 extension WriteCommentViewController: StarRatingViewDelegate {
@@ -143,7 +142,7 @@ extension WriteCommentViewController: UITextViewDelegate{
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
             textView.text = textPlaceHolder
-            textView.textColor = UIColor.lightGray
+            textView.textColor = UIColor.placeholderText
         }
     }
 }
