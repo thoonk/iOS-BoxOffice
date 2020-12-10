@@ -1,5 +1,5 @@
-# IOS_BoostCourse5
-## BoxOffice App. (iOS_ProjectE)
+# iOS
+## BoxOffice App. 
 
 - Request and fetch movie information through the server's API.  
 - The movie information is expressed on the screen using the table view and the collection view.  
